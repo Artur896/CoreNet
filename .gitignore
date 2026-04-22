@@ -1,0 +1,10 @@
+.anchor
+.DS_Store
+target/
+**/*.rs.bk
+*.pem
+node_modules/
+dist/
+build/
+.yarn/
+.claude/
