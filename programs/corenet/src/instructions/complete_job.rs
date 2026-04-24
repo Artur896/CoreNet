@@ -8,7 +8,6 @@ pub struct CompleteJob<'info> {
     #[account(mut)]
     pub provider: Signer<'info>,
 
-    /// Receives the rent lamports when job_account is closed.
     /// CHECK: verified via has_one = client on job_account
     #[account(mut)]
     pub client: UncheckedAccount<'info>,
@@ -22,10 +21,9 @@ pub struct CompleteJob<'info> {
     )]
     pub node_account: Account<'info, NodeAccount>,
 
-    /// Closed to `client` after the instruction; remaining lamports (rent) return to client.
+    // Account stays open so the client can read the result.
     #[account(
         mut,
-        close = client,
         seeds = [
             b"job",
             job_account.client.as_ref(),
@@ -46,13 +44,14 @@ pub struct CompleteJob<'info> {
     pub network_state: Account<'info, NetworkState>,
 }
 
-pub fn handler(ctx: Context<CompleteJob>) -> Result<()> {
+pub fn handler(ctx: Context<CompleteJob>, result: String) -> Result<()> {
+    require!(result.len() <= JobAccount::MAX_RESULT, CoreNetError::ResultTooLong);
+
     let payment = ctx.accounts.job_account.payment;
 
-    // Update job status before account is closed.
     ctx.accounts.job_account.status = JobStatus::Completed;
+    ctx.accounts.job_account.result = result;
 
-    // Update node statistics.
     ctx.accounts.node_account.jobs_completed += 1;
     ctx.accounts.node_account.active_jobs =
         ctx.accounts.node_account.active_jobs.saturating_sub(1);
@@ -62,9 +61,7 @@ pub fn handler(ctx: Context<CompleteJob>) -> Result<()> {
 
     ctx.accounts.network_state.total_jobs += 1;
 
-    // Release escrow: transfer payment from job PDA to provider.
-    // After this, job_account holds only rent lamports, which Anchor returns
-    // to `client` via the `close = client` constraint.
+    // Transfer escrowed payment from job PDA to provider.
     **ctx
         .accounts
         .job_account

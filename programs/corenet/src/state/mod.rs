@@ -42,12 +42,17 @@ pub struct JobAccount {
     pub required_ram: u16,
     pub payment: u64,
     pub status: JobStatus,
+    pub spec: String,   // JSON job spec: {"image":"...","cmd":"..."}
+    pub result: String, // stdout captured by the provider daemon
     pub bump: u8,
 }
 
 impl JobAccount {
-    // 8 + 32 + 32 + 8 + 1 + 2 + 8 + 1 + 1
-    pub const SPACE: usize = 8 + 32 + 32 + 8 + 1 + 2 + 8 + 1 + 1;
+    pub const MAX_SPEC: usize = 200;
+    pub const MAX_RESULT: usize = 200;
+    // 8 disc + 32 client + 32 provider + 8 job_id + 1 cpu + 2 ram + 8 payment
+    // + 1 status + (4+200) spec + (4+200) result + 1 bump
+    pub const SPACE: usize = 8 + 32 + 32 + 8 + 1 + 2 + 8 + 1 + (4 + 200) + (4 + 200) + 1;
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]

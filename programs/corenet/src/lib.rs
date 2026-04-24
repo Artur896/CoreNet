@@ -48,21 +48,20 @@ pub mod corenet {
         required_cpu: u8,
         required_ram: u16,
         payment: u64,
+        spec: String,
     ) -> Result<()> {
-        instructions::submit_job::handler(ctx, job_id, required_cpu, required_ram, payment)
+        instructions::submit_job::handler(ctx, job_id, required_cpu, required_ram, payment, spec)
     }
 
     /// Provider accepts a Pending job after validating resource availability.
-    /// `job_id` is used client-side to derive the job PDA; the program verifies
-    /// via self-referential seeds stored in the account.
     pub fn accept_job(ctx: Context<AcceptJob>, _job_id: u64) -> Result<()> {
         instructions::accept_job::handler(ctx)
     }
 
-    /// Provider marks the job Completed, releases payment from escrow,
-    /// and returns rent to the client.
-    pub fn complete_job(ctx: Context<CompleteJob>, _job_id: u64) -> Result<()> {
-        instructions::complete_job::handler(ctx)
+    /// Provider (or daemon) marks the job Completed, releases payment from escrow,
+    /// and stores the result on-chain for the client to read.
+    pub fn complete_job(ctx: Context<CompleteJob>, _job_id: u64, result: String) -> Result<()> {
+        instructions::complete_job::handler(ctx, result)
     }
 
     /// Client cancels a Pending job and receives a full refund (rent + payment).

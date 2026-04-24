@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CoreNet</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: monospace; background: #0f0f0f; color: #e0e0e0; padding: 24px; }
+      h1 { color: #7df3a0; margin-bottom: 4px; }
+      .subtitle { color: #666; font-size: 13px; margin-bottom: 24px; }
+      .wallet-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+      .btn { padding: 8px 16px; border: 1px solid #444; background: #1a1a1a; color: #e0e0e0;
+             cursor: pointer; font-family: monospace; font-size: 13px; border-radius: 4px; }
+      .btn:hover { border-color: #7df3a0; color: #7df3a0; }
+      .btn.primary { background: #1a3d2b; border-color: #7df3a0; color: #7df3a0; }
+      .btn.danger { background: #3d1a1a; border-color: #f37d7d; color: #f37d7d; }
+      .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; }
+      .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 16px; }
+      .card h2 { font-size: 14px; color: #7df3a0; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+      label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; margin-top: 10px; }
+      input { width: 100%; padding: 6px 10px; background: #0f0f0f; border: 1px solid #333;
+              color: #e0e0e0; font-family: monospace; font-size: 13px; border-radius: 3px; }
+      input:focus { outline: none; border-color: #7df3a0; }
+      .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+      .log { margin-top: 24px; }
+      .log h2 { font-size: 13px; color: #666; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+      .log-box { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 4px;
+                 padding: 12px; max-height: 240px; overflow-y: auto; font-size: 12px; line-height: 1.7; }
+      .log-box .ok  { color: #7df3a0; }
+      .log-box .err { color: #f37d7d; }
+      .log-box .inf { color: #7db8f3; }
+      .pubkey { font-size: 11px; color: #888; margin-top: 2px; word-break: break-all; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

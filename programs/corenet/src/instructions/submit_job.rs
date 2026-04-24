@@ -35,8 +35,11 @@ pub fn handler(
     required_cpu: u8,
     required_ram: u16,
     payment: u64,
+    spec: String,
 ) -> Result<()> {
+    use crate::state::JobAccount;
     require!(payment > 0, CoreNetError::ZeroPayment);
+    require!(spec.len() <= JobAccount::MAX_SPEC, CoreNetError::SpecTooLong);
 
     // Lock payment in the job PDA as escrow (separate from rent already paid via init).
     system_program::transfer(
@@ -58,6 +61,8 @@ pub fn handler(
     job.required_ram = required_ram;
     job.payment = payment;
     job.status = JobStatus::Pending;
+    job.spec = spec;
+    job.result = String::new();
     job.bump = ctx.bumps.job_account;
 
     Ok(())

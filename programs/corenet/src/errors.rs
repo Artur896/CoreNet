@@ -16,4 +16,8 @@ pub enum CoreNetError {
     ZeroPayment,
     #[msg("Node spec must have at least 1 CPU core and a non-zero price")]
     InvalidNodeSpec,
+    #[msg("Job spec exceeds 200-character limit")]
+    SpecTooLong,
+    #[msg("Job result exceeds 200-character limit")]
+    ResultTooLong,
 }
