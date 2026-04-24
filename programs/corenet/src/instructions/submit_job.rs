@@ -36,6 +36,8 @@ pub fn handler(
     required_ram: u16,
     payment: u64,
 ) -> Result<()> {
+    require!(payment > 0, CoreNetError::ZeroPayment);
+
     // Lock payment in the job PDA as escrow (separate from rent already paid via init).
     system_program::transfer(
         CpiContext::new(

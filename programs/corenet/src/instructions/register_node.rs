@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use crate::errors::CoreNetError;
 use crate::state::{NetworkState, NodeAccount};
 
 #[derive(Accounts)]
@@ -33,6 +34,11 @@ pub fn handler(
     storage_gb: u32,
     price_per_job: u64,
 ) -> Result<()> {
+    require!(
+        cpu_cores > 0 && price_per_job > 0,
+        CoreNetError::InvalidNodeSpec
+    );
+
     let node = &mut ctx.accounts.node_account;
     node.owner = ctx.accounts.provider.key();
     node.cpu_cores = cpu_cores;

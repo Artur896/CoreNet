@@ -32,11 +32,9 @@ pub struct AcceptJob<'info> {
 }
 
 pub fn handler(ctx: Context<AcceptJob>) -> Result<()> {
-    let job = &ctx.accounts.job_account;
-    let node = &ctx.accounts.node_account;
-
     require!(
-        node.cpu_cores >= job.required_cpu && node.ram_gb >= job.required_ram,
+        ctx.accounts.node_account.cpu_cores >= ctx.accounts.job_account.required_cpu
+            && ctx.accounts.node_account.ram_gb >= ctx.accounts.job_account.required_ram,
         CoreNetError::InsufficientResources
     );
 

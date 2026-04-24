@@ -53,14 +53,14 @@ pub mod corenet {
     }
 
     /// Provider accepts a Pending job after validating resource availability.
-    /// `job_id` is used client-side to derive the job PDA; the on-chain check
-    /// uses self-referential seeds from the stored account data.
+    /// `job_id` is used client-side to derive the job PDA; the program verifies
+    /// via self-referential seeds stored in the account.
     pub fn accept_job(ctx: Context<AcceptJob>, _job_id: u64) -> Result<()> {
         instructions::accept_job::handler(ctx)
     }
 
     /// Provider marks the job Completed, releases payment from escrow,
-    /// and returns the rent to the client.
+    /// and returns rent to the client.
     pub fn complete_job(ctx: Context<CompleteJob>, _job_id: u64) -> Result<()> {
         instructions::complete_job::handler(ctx)
     }

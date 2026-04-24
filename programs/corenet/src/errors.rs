@@ -12,4 +12,8 @@ pub enum CoreNetError {
     NodeNotActive,
     #[msg("Node still has active jobs; deregister aborted")]
     ActiveJobsExist,
+    #[msg("Payment must be greater than zero")]
+    ZeroPayment,
+    #[msg("Node spec must have at least 1 CPU core and a non-zero price")]
+    InvalidNodeSpec,
 }
