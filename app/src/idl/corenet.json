@@ -1,0 +1,799 @@
+{
+  "address": "FM7AiquU7fx1Ng9W5QGwQLhsjwZfAa7LE7K3Tr4baskQ",
+  "metadata": {
+    "name": "corenet",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "CoreNet - Distributed Computing Network on Solana"
+  },
+  "instructions": [
+    {
+      "name": "accept_job",
+      "docs": [
+        "Provider accepts a Pending job after validating resource availability."
+      ],
+      "discriminator": [
+        43,
+        201,
+        124,
+        1,
+        19,
+        189,
+        96,
+        10
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "node_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "provider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_account",
+          "docs": [
+            "Seeds are verified against the data already stored in the account (self-referential)."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job_account.client",
+                "account": "JobAccount"
+              },
+              {
+                "kind": "account",
+                "path": "job_account.job_id",
+                "account": "JobAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "_job_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "cancel_job",
+      "docs": [
+        "Client cancels a Pending job and receives a full refund (rent + payment)."
+      ],
+      "discriminator": [
+        126,
+        241,
+        155,
+        241,
+        50,
+        236,
+        83,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "client",
+          "docs": [
+            "Must be the original submitter; receives full refund (rent + payment) via close."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "job_account"
+          ]
+        },
+        {
+          "name": "job_account",
+          "docs": [
+            "Closing to `client` returns all lamports (rent + escrowed payment)."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job_account.client",
+                "account": "JobAccount"
+              },
+              {
+                "kind": "account",
+                "path": "job_account.job_id",
+                "account": "JobAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "_job_id",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "complete_job",
+      "docs": [
+        "Provider (or daemon) marks the job Completed, releases payment from escrow,",
+        "and stores the result on-chain for the client to read."
+      ],
+      "discriminator": [
+        221,
+        216,
+        225,
+        72,
+        101,
+        250,
+        3,
+        11
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "docs": [
+            "Receives the escrowed payment."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "client",
+          "writable": true,
+          "relations": [
+            "job_account"
+          ]
+        },
+        {
+          "name": "node_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "provider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job_account.client",
+                "account": "JobAccount"
+              },
+              {
+                "kind": "account",
+                "path": "job_account.job_id",
+                "account": "JobAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "network_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  116,
+                  119,
+                  111,
+                  114,
+                  107
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "_job_id",
+          "type": "u64"
+        },
+        {
+          "name": "result",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "deregister_node",
+      "docs": [
+        "Provider closes their node and recovers the rent. Fails if jobs are in flight."
+      ],
+      "discriminator": [
+        92,
+        177,
+        93,
+        30,
+        69,
+        177,
+        46,
+        177
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "docs": [
+            "Receives the rent lamports when node_account is closed."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "node_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "provider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "network_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  116,
+                  119,
+                  111,
+                  114,
+                  107
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Creates the global NetworkState PDA. Call once from the admin wallet."
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "network_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  116,
+                  119,
+                  111,
+                  114,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_node",
+      "docs": [
+        "Registers a provider node with hardware specs and pricing."
+      ],
+      "discriminator": [
+        102,
+        85,
+        117,
+        114,
+        194,
+        188,
+        211,
+        168
+      ],
+      "accounts": [
+        {
+          "name": "provider",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "node_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "provider"
+              }
+            ]
+          }
+        },
+        {
+          "name": "network_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  116,
+                  119,
+                  111,
+                  114,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "cpu_cores",
+          "type": "u8"
+        },
+        {
+          "name": "ram_gb",
+          "type": "u16"
+        },
+        {
+          "name": "storage_gb",
+          "type": "u32"
+        },
+        {
+          "name": "price_per_job",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "submit_job",
+      "docs": [
+        "Client submits a compute job targeting a specific provider node.",
+        "Payment (in lamports) is locked in the job PDA as escrow."
+      ],
+      "discriminator": [
+        250,
+        129,
+        161,
+        132,
+        254,
+        161,
+        34,
+        107
+      ],
+      "accounts": [
+        {
+          "name": "client",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "provider_node",
+          "docs": [
+            "The provider node the client is targeting; must be active."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "provider_node.owner",
+                "account": "NodeAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "job_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "client"
+              },
+              {
+                "kind": "arg",
+                "path": "job_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "job_id",
+          "type": "u64"
+        },
+        {
+          "name": "required_cpu",
+          "type": "u8"
+        },
+        {
+          "name": "required_ram",
+          "type": "u16"
+        },
+        {
+          "name": "payment",
+          "type": "u64"
+        },
+        {
+          "name": "spec",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "JobAccount",
+      "discriminator": [
+        91,
+        16,
+        162,
+        5,
+        45,
+        210,
+        125,
+        65
+      ]
+    },
+    {
+      "name": "NetworkState",
+      "discriminator": [
+        212,
+        237,
+        148,
+        56,
+        97,
+        245,
+        51,
+        169
+      ]
+    },
+    {
+      "name": "NodeAccount",
+      "discriminator": [
+        125,
+        166,
+        18,
+        146,
+        195,
+        127,
+        86,
+        220
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientResources",
+      "msg": "Node does not have enough CPU or RAM to accept this job"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidJobStatus",
+      "msg": "Job status is invalid for this operation"
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Signer is not authorized to perform this action"
+    },
+    {
+      "code": 6003,
+      "name": "NodeNotActive",
+      "msg": "Node is not active"
+    },
+    {
+      "code": 6004,
+      "name": "ActiveJobsExist",
+      "msg": "Node still has active jobs; deregister aborted"
+    },
+    {
+      "code": 6005,
+      "name": "ZeroPayment",
+      "msg": "Payment must be greater than zero"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidNodeSpec",
+      "msg": "Node spec must have at least 1 CPU core and a non-zero price"
+    },
+    {
+      "code": 6007,
+      "name": "SpecTooLong",
+      "msg": "Job spec exceeds 200-character limit"
+    },
+    {
+      "code": 6008,
+      "name": "ResultTooLong",
+      "msg": "Job result exceeds 200-character limit"
+    }
+  ],
+  "types": [
+    {
+      "name": "JobAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "client",
+            "type": "pubkey"
+          },
+          {
+            "name": "provider",
+            "type": "pubkey"
+          },
+          {
+            "name": "job_id",
+            "type": "u64"
+          },
+          {
+            "name": "required_cpu",
+            "type": "u8"
+          },
+          {
+            "name": "required_ram",
+            "type": "u16"
+          },
+          {
+            "name": "payment",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "JobStatus"
+              }
+            }
+          },
+          {
+            "name": "spec",
+            "type": "string"
+          },
+          {
+            "name": "result",
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Accepted"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "NetworkState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_nodes",
+            "type": "u32"
+          },
+          {
+            "name": "total_jobs",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "NodeAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "cpu_cores",
+            "type": "u8"
+          },
+          {
+            "name": "ram_gb",
+            "type": "u16"
+          },
+          {
+            "name": "storage_gb",
+            "type": "u32"
+          },
+          {
+            "name": "price_per_job",
+            "type": "u64"
+          },
+          {
+            "name": "jobs_completed",
+            "type": "u64"
+          },
+          {
+            "name": "active_jobs",
+            "type": "u8"
+          },
+          {
+            "name": "reputation",
+            "type": "u8"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { AnchorProvider, Program, BN, Idl } from "@coral-xyz/anchor";
-import rawIdl from "../../target/idl/corenet.json";
+import rawIdl from "./idl/corenet.json";
 
-const IDL      = rawIdl as unknown as Idl;
+const IDL        = rawIdl as unknown as Idl;
 const PROGRAM_ID = new PublicKey("FM7AiquU7fx1Ng9W5QGwQLhsjwZfAa7LE7K3Tr4baskQ");
-const RPC      = "http://127.0.0.1:8899";
+const RPC        = import.meta.env.VITE_RPC ?? "https://api.devnet.solana.com";
 const conn     = new Connection(RPC, "confirmed");
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
